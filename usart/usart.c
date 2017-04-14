@@ -269,6 +269,8 @@ usart_Printf(USART_TypeDef * pxDev, const char * pcFmt, ...)
         }
 	pxDev->DR = *(pcBuffer + i);
      }
+     // free memory, it's very important fuck it
+     free(pcBuffer);
      //while(!USART_GetFlagStatus(pxDev, USART_FLAG_TXE);
      //USART_SendData(USART1,ch);
      return lDataLen;
