@@ -3,9 +3,9 @@
 * @file: usart.c
 * @description: stm32 usart configuration
 * @author: Thogo Team
-* @version: 0.0.2
+* @version: 0.0.3
 * @create_at: 2017/04/10
-* @update_at: 2017/04/14
+* @update_at: 2017/04/18
 * 
 *
 */
@@ -170,9 +170,9 @@ usart_RegisterRXCallback(USART_TypeDef * pxDev, RXCallback_t pxCallback)
 *     >=0: data length
 */
 int32_t
-usart_SendData(USART_TypeDef * pxDev, uint8_t * pucData, uint32_t ulLen)
+usart_SendData(USART_TypeDef * pxDev, uint8_t * pucData, uint32_t lLen)
 {
-    uint32_t i = 0;
+    int32_t i = 0;
     uint32_t ulTimeout = 0;
 	
     if((pxDev != USART1) && (pxDev != USART2))
@@ -180,7 +180,7 @@ usart_SendData(USART_TypeDef * pxDev, uint8_t * pucData, uint32_t ulLen)
         // No such device
         return -1;
     }
-    for(i = 0; i < ulLen; i++)
+    for(i = 0; i < lLen; i++)
     {
         // Waiting last sending to complete
         ulTimeout = 100000;
@@ -195,7 +195,7 @@ usart_SendData(USART_TypeDef * pxDev, uint8_t * pucData, uint32_t ulLen)
         }
         pxDev->DR = *(pucData + i);
     }
-    return ulLen;
+    return lLen;
 }
 
 
@@ -221,7 +221,7 @@ usart_Printf(USART_TypeDef * pxDev, const char * pcFmt, ...)
     // data buffer 
     char * pcBuffer = NULL;
     int32_t lDataLen = 0;
-    uint32_t i = 0;
+    int32_t i = 0;
     uint32_t ulTimeout = 0;
 	
     if(pxDev == USART1)

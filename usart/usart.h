@@ -3,9 +3,9 @@
 * @file: usart.h
 * @description: stm32 usart API
 * @author: Thogo Team
-* @version: 0.0.2
+* @version: 0.0.3
 * @create_at: 2017/04/10
-* @update_at: 2017/04/14
+* @update_at: 2017/04/18
 * 
 *
 */
@@ -34,7 +34,7 @@ int32_t usart_Initiate(USART_TypeDef * pxDev, uint32_t ulBaudRate, uint8_t ucEna
 int32_t usart_Printf(USART_TypeDef * pxDev, const char * pcFmt, ...);
 	
 // Send raw data
-int32_t usart_SendData(USART_TypeDef * pxDev, uint8_t * pucData, uint32_t ulLen);
+int32_t usart_SendData(USART_TypeDef * pxDev, uint8_t * pucData, int32_t lLen);
 	
 // Register usart's callback function ,when usart's rx intterupt is enabled
 void usart_RegisterRXCallback(USART_TypeDef * pxDev, RXCallback_t pxCallback);
