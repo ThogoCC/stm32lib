@@ -4,6 +4,47 @@
 
 ## Usage
 
+
+### usart usage
+
+```c
+
+#include "usart.h"
+
+
+/**
+*
+* @brief: handle usart rx , this function will be called when usart's rx interrupt occured
+* @args: ucByte, the data byte that usart received
+* @returns: None
+*
+*/
+void
+_HandleUsartRX(uint8_t ucByte)
+{
+    // fill here with you logical code
+}
+
+
+int
+main(void)
+{
+    // The detail parameters signature, please refer to usart.h
+    usart_Initiate(USART1,  115200, 1);
+    // register usart rx interrupt callback
+    usart_RegisterRXCallback(USART1, _HandleUsartRC)
+    while(1)
+    {
+        usart_Printf(USART1, "hello world %s", "stm32");
+    }
+    return 0;
+}
+
+```
+
+---------------------------
+
+
 ### key usage
 
 ```c
