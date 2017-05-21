@@ -2,6 +2,12 @@
 
 
 
+## Dependencies
+
+- stm32 standard library
+- ....
+
+
 ## Usage
 
 
@@ -32,7 +38,7 @@ main(void)
     // The detail parameters signature, please refer to usart.h
     usart_Initiate(USART1,  115200, 1);
     // register usart rx interrupt callback
-    usart_RegisterRXCallback(USART1, _HandleUsartRC)
+    usart_RegisterRXCallback(USART1, _HandleUsartRX)
     while(1)
     {
         usart_Printf(USART1, "hello world %s", "stm32");
