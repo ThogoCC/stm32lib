@@ -101,7 +101,7 @@ main(void)
 -----------
 
 
-### rtc usage
+### rtc lib usage
 
 ```c
 
@@ -122,10 +122,10 @@ dt.ulYear = 2017;
 //   you want to stm32's RTC hardware 
 rtc_Initiate(&dt);
 
-// get current datetime
+// get the current datetime
 rtc_GetDateTime(&dt);
 
-// set current datetime;
+// set the current datetime;
 dt.ucHour = 19;
 rtc_SetDateTime(&dt);
 
@@ -137,11 +137,11 @@ rtc_SetAlarmDateTime(&dt);
 static void 
 _HandleRTCAlarm(DateTime_t * pxDT)
 {
-   // do your logic code here
+   // write your logic code here
 }
 
 // when you write your RTC alarm ISR callback, you need to \ 
-//  register it by calling following function
+//   register it by calling following function
 rtc_RegisterAlarmCallback(_HandleRTCAlarm);
 
 
