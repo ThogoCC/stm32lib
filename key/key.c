@@ -13,12 +13,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "key.h"
 
 
 
 // key event callback function
 static KeyEventCallback_t  _key_pxEventCallback = NULL;
+
 // key table pointer, it contains key number and key events
 static KeyTable_t * _key_pxTbl = NULL;
 
@@ -203,15 +205,15 @@ TIM2_IRQHandler(void)
             // check key down time
             if(_key_pxTbl->pxEvents[ulKeyId].ulDownTime < keyLONG_PRESS_BOUNDARY_TIME / 20)
             {
-                // key short pressed
+                // key long pressed
                 _key_pxTbl->pxEvents[ulKeyId].eType = SHORT_PRESSED;
             }
             else
             {
-                // key long pressed
+                // key short pressed
                 _key_pxTbl->pxEvents[ulKeyId].eType = LONG_PRESSED;
             }
-            // if the event callback is not null,
+            // if key event callback is not null,
             // then call event callback function
             if(_key_pxEventCallback != NULL)
             {
@@ -227,7 +229,7 @@ TIM2_IRQHandler(void)
             if(_key_pxTbl->pxEvents[ulKeyId].eState == KEY_DOWN)
             {
                 _key_pxTbl->pxEvents[ulKeyId].ulDownTime++;
-                // if the key down time is greater than long pressing boundary time,
+                // check time of key downing , if time is greater than long pressing boundary time,
                 // then call long pressing callback function
                 if(_key_pxTbl->pxEvents[ulKeyId].ulDownTime > keyLONG_PRESS_BOUNDARY_TIME / 20 && \
                     _key_pxEventCallback != NULL )
@@ -240,4 +242,6 @@ TIM2_IRQHandler(void)
     }
     TIM2->SR = 0;
 }
+
+
 
