@@ -101,3 +101,52 @@ main(void)
 -----------
 
 
+### rtc usage
+
+```c
+
+#include "rtc.h"
+
+DateTime_t dt;
+
+// initiate the begining datetime
+dt.ulSecond = 40;
+dt.ucMin = 41;
+dt.ucHour = 15;
+dt.ucDay = 4;
+dt.ucMonth = 6;
+dt.ulYear = 2017;
+
+// initiate stm32 RTC 
+// note that this function must be called firstly, whenever \
+//   you want to stm32's RTC hardware 
+rtc_Initiate(&dt);
+
+// get current datetime
+rtc_GetDateTime(&dt);
+
+// set current datetime;
+dt.ucHour = 19;
+rtc_SetDateTime(&dt);
+
+// set RTC alarm datetime
+dt.ucHourt = 20;
+rtc_SetAlarmDateTime(&dt);
+
+// this function will called when RTC's alarm interrupt occurrs
+static void 
+_HandleRTCAlarm(DateTime_t * pxDT)
+{
+   // do your logic code here
+}
+
+// when you write your RTC alarm ISR callback, you need to \ 
+//  register it by calling following function
+rtc_RegisterAlarmCallback(_HandleRTCAlarm);
+
+
+// this helper function can convert your datetime to seconds
+rtc_DT2Seconds(&dt);
+
+
+```
