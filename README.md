@@ -53,6 +53,13 @@ main(void)
 
 ### key usage
 
+
+#### implementation principle
+
+this key implementation's fundamental principle is  checking key's state \
+  in  the stm32 timer's updating ISR , when key is down, the user registered \
+  callback function will be called with 'pxKeyEvent' as function's parameter.
+
 ```c
 
 #include "key.h"
@@ -65,6 +72,18 @@ _HandleKeyEvent(KeyEvent_t * pxEvent)
     {
         case 0:
             // handle key 0 event
+            if(pxEvent->eType == SHORT_PRESSED)
+            {
+	        // when key 0 is short time  pressed
+            }
+            else if(pxEvent->eType == LONG_PRESSED)
+            {
+                // when key 0 is long time pressed
+            }
+            else 
+            {
+                // when key0 is long time pressing
+            }
             break;
         case 1:
             // handle key 1 event
@@ -86,11 +105,11 @@ main(void)
     // GPIOA.10 ===> id = 2, key 2
     key_Initiate(GPIOA, 0x01 << 10 | 0x01 << 9 | 0x01 << 8);
     // register event callback function ,this callback function be called
-    //  when key event occured
+    //  when key event occured, this function will be called,
     key_RegisterEventCallback(_HandleKeyEvent);
     while(1)
     {
-
+        // other stuff
     }
     return 0;
 }
@@ -137,7 +156,7 @@ rtc_SetAlarmDateTime(&dt);
 static void 
 _HandleRTCAlarm(DateTime_t * pxDT)
 {
-   // write your logic code here
+   // write your logical code here
 }
 
 // when you write your RTC alarm ISR callback, you need to \ 
