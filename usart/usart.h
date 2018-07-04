@@ -3,9 +3,9 @@
 * @file: usart.h
 * @description: stm32 usart API
 * @author: Thogo Team
-* @version: 0.0.3
+* @version: 0.0.2
 * @create_at: 2017/04/10
-* @update_at: 2017/04/18
+* @update_at: 2017/04/14
 * 
 *
 */

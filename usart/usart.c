@@ -3,9 +3,9 @@
 * @file: usart.c
 * @description: stm32 usart configuration
 * @author: Thogo Team
-* @version: 0.0.3
+* @version: 0.0.2
 * @create_at: 2017/04/10
-* @update_at: 2017/04/18
+* @update_at: 2017/04/14
 * 
 *
 */
@@ -19,9 +19,11 @@
 // usart callback function 
 RXCallback_t usart_pxUsart1Callback = NULL;
 RXCallback_t usart_pxUsart2Callback = NULL;
+RXCallback_t usart_pxUsart3Callback = NULL;
 // 1(initiated), 0(none-initiated)
 // bit 0: the status of USART1 initiation
 // bit 1: the status of USART2 initiation 
+// bit 2: the status of USART3 initiation
 uint8_t usart_ucDevInitiationStatus  = 0x00;
 
 
@@ -57,7 +59,7 @@ usart_Initiate(USART_TypeDef * pxDev, uint32_t ulBaudRate, uint8_t ucEnableRT)
     }
     else if(pxDev == USART2)
     {
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
+    	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE); 
         // TX Pin
         GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
@@ -70,10 +72,26 @@ usart_Initiate(USART_TypeDef * pxDev, uint32_t ulBaudRate, uint8_t ucEnableRT)
         GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
         GPIO_Init(GPIOA, &GPIO_InitStructure);
     }
+    else if(pxDev == USART3)
+    {
+    	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB| RCC_APB2Periph_AFIO ,ENABLE);
+		//GPIO_PinRemapConfig(GPIO_FullRemap_USART3, ENABLE);
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
+		/* Configure USART3 Rx (PB.11) as input floating */
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+		GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+		/* Configure USART3 Tx (PB.10) as alternate function push-pull */
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+		GPIO_Init(GPIOB, &GPIO_InitStructure);
+    }
     else
     {
         // No such device, then return -1
-	return -1;
+    	return -1;
     }
     // Config USART
     USART_DeInit(pxDev);
@@ -106,6 +124,16 @@ usart_Initiate(USART_TypeDef * pxDev, uint32_t ulBaudRate, uint8_t ucEnableRT)
             NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
             NVIC_Init(&NVIC_InitStructure);
         }
+        else if(pxDev == USART3)
+        {
+        	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+			NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+			NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+			NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+			NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+			NVIC_Init(&NVIC_InitStructure);
+			//USART_ClearFlag(pxDev, USART_FLAG_TXE);
+        }
         else
         {
             // No such device ,then return -1
@@ -118,11 +146,16 @@ usart_Initiate(USART_TypeDef * pxDev, uint32_t ulBaudRate, uint8_t ucEnableRT)
     }
     else if(pxDev == USART2)
     {
-	usart_ucDevInitiationStatus |= 0x02;
+    	usart_ucDevInitiationStatus |= 0x02;
+    }
+    else if(pxDev == USART3)
+    {
+    	usart_ucDevInitiationStatus |= 0x04;
     }
     else
     {
-	// No such device
+    	// No such device
+    	return -1;
     }
     USART_Cmd(pxDev, ENABLE);
     return 0;
@@ -147,12 +180,16 @@ usart_RegisterRXCallback(USART_TypeDef * pxDev, RXCallback_t pxCallback)
     }
     else if(pxDev == USART2)
     {
-	usart_pxUsart2Callback = pxCallback;
+    	usart_pxUsart2Callback = pxCallback;
+    }
+    else if(pxDev == USART3)
+    {
+    	usart_pxUsart3Callback = pxCallback;
     }
     else
     {
         // No such device;
-	//NULL;
+    	//NULL;
     }
 }
 	
@@ -170,12 +207,12 @@ usart_RegisterRXCallback(USART_TypeDef * pxDev, RXCallback_t pxCallback)
 *     >=0: data length
 */
 int32_t
-usart_SendData(USART_TypeDef * pxDev, uint8_t * pucData, uint32_t lLen)
+usart_SendData(USART_TypeDef * pxDev, uint8_t * pucData, int32_t lLen)
 {
     int32_t i = 0;
     uint32_t ulTimeout = 0;
 	
-    if((pxDev != USART1) && (pxDev != USART2))
+    if((pxDev != USART1) && (pxDev != USART2) && (pxDev != USART3))
     {
         // No such device
         return -1;
@@ -240,6 +277,13 @@ usart_Printf(USART_TypeDef * pxDev, const char * pcFmt, ...)
              return -2;
         }
     }
+    else if(pxDev == USART3)
+    {
+    	if(!(usart_ucDevInitiationStatus & 0x04))
+		{
+			 return -2;
+		}
+    }
     else
     {
         // No such device
@@ -267,7 +311,7 @@ usart_Printf(USART_TypeDef * pxDev, const char * pcFmt, ...)
             }
             ulTimeout--;
         }
-	pxDev->DR = *(pcBuffer + i);
+        pxDev->DR = *(pcBuffer + i);
      }
      // free memory, it's very important fuck it
      free(pcBuffer);
@@ -318,6 +362,31 @@ USART2_IRQHandler(void)
         if(NULL != usart_pxUsart2Callback)
         {
             usart_pxUsart2Callback(ucData);
-	}
+        }
     }
 }
+
+
+/**
+ *
+ * @desc: usart2 interrupt service routine
+ * @args: None
+ * @returns: None
+ *
+ */
+void
+USART3_IRQHandler(void)
+{
+    uint8_t ucData;
+
+    if(USART3->SR & (0x01 << 5))
+    {
+        ucData = USART3->DR;
+        if(NULL != usart_pxUsart3Callback)
+        {
+            usart_pxUsart3Callback(ucData);
+        }
+    }
+}
+
+
